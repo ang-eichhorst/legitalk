@@ -108,11 +108,27 @@ You are an expert legislative aide. Your task is to analyze the provided transcr
     - Only create these time-bound overrides if your `confidence_level` is **8 or higher**. If unsure, default to the main speaker or a generic label.
 
 **Rules for Agenda Generation:**
-1.  Identify the main, distinct agenda items discussed during the meeting. An agenda item is a discrete topic of discussion, often introduced by the chair or clerk (e.g., "Item twenty four," "Special Order 2:30 PM," "General Public Comment").
-2.  For each agenda item, create an object in the `agenda_items` array.
-3.  The `title` should be a clear and concise description of the agenda item.
-4.  The `start_time` must be the exact start time in seconds, taken from the timestamp (e.g., `[327.895]`) where the item is first introduced.
-5.  The `summary` should be a brief, neutral, one-sentence description of what was discussed or decided for that item.
+- Core Principle: Every time a speaker begins substantive remarks about a bill, create a new agenda item, even if the same bill was discussed earlier or by the same speaker. 
+- Identifying a bill discussion:
+1.  A bill discussion begins when a speaker first mentions a bill number or bill title and proceeds with substantive remarks, including policy explanation, support or opposition, questions, testimony, or analysis.
+2.  Brief procedural remarks such as “Thank you, Madam Chair” do not start an agenda item.
+3.  Edge cases such as “I’ll be brief on House Bill 5421” do start a new agenda item.
+
+- Bill number normalization:
+1.  Bills may be referenced in multiple formats, including numeric, comma-separated, or fully spelled-out forms.
+2.  Examples include 
+    - 5421 or 5,421
+    - fifty four twenty one
+    - seven thousand and two
+    - seven oh oh two
+3.  All recognizable variants referring to the same bill must be normalized to a standard numeric format, such as HB 5421 or SB 7002.
+
+- Agenda item creation rules:
+1.  Create a new agenda item each time a speaker begins substantive remarks on a bill.
+2.  This rule applies to legislators, committee staff, agency officials, and members of the public.
+3.  If the same speaker returns later to speak again on the same bill, create a new agenda item.
+4.  If a speaker continuously discusses multiple bills in a single uninterrupted segment, create separate agenda items for each bill using the timestamp where each bill is first mentioned.
+5.  If discussion is continuous and focused on a single bill, do not split the agenda item unless the speaker clearly transitions to another bill.
 
 **Example of a good `agenda_items` entry:**
 ```json

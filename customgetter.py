@@ -1,162 +1,213 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
-import json
+#!/usr/bin/env python3
+"""
+Connecticut YouTube custom getter for SmartTranscripts.
+
+- Reads committeeurl.json (committee -> channel_url)
+- Uses yt-dlp to list the newest videos on each channel
+- Skips anything already processed (tracked in ct_state.json)
+- Calls factory.py for each new video
+
+Run:
+  python customgetter.py --max-per-committee 3 --dry-run
+  python customgetter.py --max-per-committee 3
+"""
+
+from __future__ import annotations
+
 import argparse
+import datetime as dt
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Dict, Any, List, Optional
+
+import yt_dlp
+
 import re
-
-def get_video_url_from_player_page(player_url):
-    """
-    Scrapes a Granicus player page to find the direct video stream URL.
-    This logic is adapted from the proven code in lib/hosts/granicus.py.
-    """
-    try:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36'
-        }
-        response = requests.get(player_url, headers=headers)
-        response.raise_for_status()
-        
-        m3u8_match = re.search(r'video_url="([^"]+\.m3u8[^"]*)"', response.text)
-        video_url = m3u8_match.group(1) if m3u8_match else None
-
-        # Look for MP4 download link
-        mp4_match = re.search(r'href="([^"]+\.mp4)"', response.text)
-        download_url = mp4_match.group(1) if mp4_match else None
-
-        if not video_url:
-             # Fallback for other formats from the proven script
-            archive_match = re.search(r'archive_url:\s*\'(.*?)\'', response.text)
-            if archive_match:
-                video_url = archive_match.group(1)
-
-        if not download_url:
-            download_url = video_url
-
-        return {
-            'video_url': video_url,
-            'download_url': download_url
-        }
-    except requests.exceptions.RequestException:
-        return {'video_url': None, 'download_url': None}
+from dateutil import parser as dateparser
 
 
-def get_recent_meetings(committee_id=10, start_date_str='2024_01_01', count=1):
-    """
-    Retrieves a list of the most recent meetings for a given committee, including
-    the direct video URL.
-    """
-    committee_url = f"https://sanfrancisco.granicus.com/ViewPublisher.php?view_id={committee_id}"
-    start_date = datetime.strptime(start_date_str, '%Y_%m_%d')
+ROOT = Path(__file__).resolve().parent
+COMMITTEES_FILE = ROOT / "committeeurl.json"
+STATE_FILE = ROOT / "ct_state.json"
+
+
+def load_json(path: Path, default):
+    if path.exists():
+        return json.loads(path.read_text(encoding="utf-8"))
+    return default
+
+
+def save_json(path: Path, data) -> None:
+    path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
     
-    all_meetings = []
 
+def parse_yt_date(upload_date: Optional[str]) -> Optional[str]:
+    """
+    yt-dlp upload_date is usually YYYYMMDD.
+    Return ISO YYYY-MM-DD.
+    """
+    if not upload_date:
+        return None
     try:
-        response = requests.get(committee_url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
+        d = dt.datetime.strptime(upload_date, "%Y%m%d").date()
+        return d.isoformat()
+    except Exception:
+        return None
 
-        meeting_table = soup.find('table', id='archive')
-        if not meeting_table or not meeting_table.find('tbody'):
-            return []
+def extract_date_from_title(title: str):
+    """
+    Try to find a date in the video title.
+    Returns ISO YYYY-MM-DD or None.
+    """
+    try:
+        # fuzzy=True lets dateutil ignore extra words
+        dt = dateparser.parse(title, fuzzy=True)
+        if dt:
+            return dt.date().isoformat()
+    except Exception:
+        pass
+    return None
 
-        meeting_rows = meeting_table.find('tbody').find_all('tr')
-        
-        for row in meeting_rows:
-            columns = row.find_all('td')
-            if len(columns) < 2:
+def list_recent_videos(channel_url: str, limit: int) -> List[Dict[str, Any]]:
+    """
+    Returns a list of dicts with keys: id, title, url, upload_date
+    Uses yt-dlp "flat" extraction so it’s fast and doesn’t download media.
+    """
+    ydl_opts = {
+        "quiet": True,
+        "skip_download": True,
+        "extract_flat": True,   # fast: only metadata
+        "playlistend": limit,
+    }
+
+    videos: List[Dict[str, Any]] = []
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(channel_url, download=False)
+
+    # A channel /videos page is treated like a playlist.
+    entries = info.get("entries") or []
+    for e in entries:
+        vid = e.get("id")
+        if not vid:
+            continue
+        videos.append(
+            {
+                "id": vid,
+                "title": e.get("title") or "",
+                "url": e.get("url") or f"https://www.youtube.com/watch?v={vid}",
+                "upload_date": parse_yt_date(e.get("upload_date")),
+            }
+        )
+    return videos
+
+
+def run_factory(url: str, committee: str, date_iso: str, jurisdiction: str, dry_run: bool) -> int:
+    cmd = [
+        sys.executable,
+        str(ROOT / "factory.py"),
+        "--url", url,
+        "--committee", committee,
+        "--date", date_iso,
+        "--jurisdiction", jurisdiction,
+    ]
+    print("RUN:", " ".join(cmd))
+    if dry_run:
+        return 0
+    p = subprocess.run(cmd)
+    return p.returncode
+
+def choose_best_date(title: str, upload_date_iso: Optional[str]) -> str:
+    """
+    Choose the best available date for a video:
+    1) Date parsed from title
+    2) YouTube upload_date (already ISO)
+    3) Today (fallback)
+    """
+    title_date = extract_date_from_title(title)
+    if title_date:
+        return title_date
+
+    if upload_date_iso:
+        return upload_date_iso
+
+    return dt.date.today().isoformat()
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-per-committee", type=int, default=3, help="How many recent videos to scan per committee")
+    ap.add_argument("--jurisdiction", default="Connecticut")
+    ap.add_argument("--dry-run", action="store_true", help="Print what would run, but don’t run factory.py")
+    args = ap.parse_args()
+
+    committees = load_json(COMMITTEES_FILE, default=None)
+    if not committees:
+        print(f"Missing or empty {COMMITTEES_FILE}. Create it first.", file=sys.stderr)
+        return 2
+
+    state = load_json(STATE_FILE, default={"processed_video_ids": []})
+    processed = set(state.get("processed_video_ids", []))
+
+    newly_processed: List[str] = []
+
+    for committee_name, cfg in committees.items():
+        channel_url = cfg.get("channel_url")
+        if not channel_url:
+            print(f"SKIP {committee_name}: no channel_url in committeeurl.json", file=sys.stderr)
+            continue
+
+        print(f"\n=== {committee_name} ===")
+        try:
+            vids = list_recent_videos(channel_url, limit=args.max_per_committee)
+        except Exception as e:
+            print(f"FAIL listing videos for {committee_name}: {e}", file=sys.stderr)
+            continue
+
+        for v in vids:
+            vid = v["id"]
+            if vid in processed:
+                print(f"Already processed: {vid}  {v['title'][:80]}")
                 continue
 
-            date_str = columns[0].text.strip()
-            try:
-                if columns[0].find('span'):
-                    columns[0].span.decompose()
-                    date_str = columns[0].text.strip()
-                
-                meeting_date = datetime.strptime(date_str, '%m/%d/%y')
-            except ValueError:
-                try:
-                    meeting_date = datetime.strptime(date_str, '%b %d, %Y')
-                except ValueError:
-                    continue
+            # If upload_date missing, fall back to today (keeps pipeline moving)
+            date_iso = dt.date.today().isoformat()
+            
+            rc = run_factory(
+                url=v["url"],
+                committee=committee_name,
+                date_iso=date_iso,
+                jurisdiction=args.jurisdiction,
+                dry_run=args.dry_run,
+            )
+            #date_iso = choose_best_date(
+                #title=v["title"],
+                #upload_date_iso=v.get("upload_date"),
+            #)
 
-            if meeting_date >= start_date:
-                player_page_url = None
-                links = row.find_all('a')
-                for link in links:
-                    href = link.get('href', '')
-                    if 'MediaPlayer.php' in href:
-                        player_page_url = f"https:{href}" if href.startswith('//') else href
-                        break
+            #rc = run_factory(
+                #url=v["url"],
+                #committee=committee_name,
+                #date_iso=date_iso,
+                #jurisdiction=args.jurisdiction,
+                #dry_run=args.dry_run,
+            #)
+            
+            if rc == 0:
+                newly_processed.append(vid)
+                processed.add(vid)
+            else:
+                print(f"Factory failed (rc={rc}) for video {vid}. Not marking as processed.", file=sys.stderr)
 
-                if not player_page_url:
-                    continue
+    if newly_processed and not args.dry_run:
+        state["processed_video_ids"] = sorted(processed)
+        save_json(STATE_FILE, state)
+        print(f"\nSaved state to {STATE_FILE} (+{len(newly_processed)} new videos).")
 
-                urls = get_video_url_from_player_page(player_page_url)
-                direct_video_url = urls.get('video_url')
-                download_url = urls.get('download_url')
-                
-                if not direct_video_url:
-                    continue
+    print("\nDone.")
+    return 0
 
-                meeting_data = {
-                    "name": columns[0].get('headers', [''])[0],
-                    "date": meeting_date.strftime('%Y-%m-%d'),
-                    "duration": columns[1].text.strip().replace('\xa0', ' '),
-                    "player_page_url": player_page_url,
-                    "video_url": direct_video_url,
-                    "download_url": download_url,
-                    "agenda_url": None,
-                    "minutes_url": None,
-                    "transcript_url": None,
-                    "mp3_url": None
-                }
 
-                for link in links:
-                    href = link.get('href', '')
-                    full_url = f"https:{href}" if href.startswith('//') else href
-
-                    if 'agendaviewer.php' in href.lower():
-                        meeting_data['agenda_url'] = full_url
-                    elif 'minutesviewer.php' in href.lower():
-                        meeting_data['minutes_url'] = full_url
-                    elif 'transcriptviewer.php' in href.lower():
-                        meeting_data['transcript_url'] = full_url
-
-                    elif '.mp3' in href:
-                        meeting_data['mp3_url'] = href
-                    elif '.mp4' in href:
-                         # Keep this as a backup if found in row, though player page is preferred
-                        meeting_data['download_url'] = href
-
-                if not meeting_data.get('download_url'):
-                    meeting_data['download_url'] = meeting_data['video_url']
-
-                all_meetings.append(meeting_data)
-
-        all_meetings.sort(key=lambda x: x['date'], reverse=True)
-        return all_meetings[:count]
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching data: {e}")
-        return []
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return []
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Fetch recent meetings from Granicus.")
-    parser.add_argument('--committee_id', type=int, default=10, help="The Granicus view_id for the committee.")
-    parser.add_argument('--start_date', type=str, default='2025_07_01', help="The start date in YYYY_MM_DD format.")
-    parser.add_argument('--count', type=int, default=1, help="The number of recent meetings to return.")
-    args = parser.parse_args()
-
-    meetings = get_recent_meetings(args.committee_id, args.start_date, args.count)
-    
-    if meetings:
-        output_file = "temp_meeting_list.json"
-        with open(output_file, 'w') as f:
-            json.dump(meetings, f, indent=4)
-        print(f"Successfully saved {len(meetings)} meeting(s) to {output_file}")
-    else:
-        print("No meetings found matching the criteria.")
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,29 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirecting...</title>
-    <style>
-        body {
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connecticut Committee Transcripts</title>
+
+  <style>
+    /* Keep the underlying page hidden (as your original did) */
+    body {
+      display: none;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* But show a small overlay UI anyway */
+    #search-overlay {
+      display: block;                 /* override body hidden */
+      position: fixed;
+      top: 12px;
+      right: 12px;
+      z-index: 9999;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      max-width: 360px;
+    }
+
+    #search-overlay h1 {
+      font-size: 14px;
+      margin: 0 0 8px 0;
+      font-weight: 600;
+    }
+
+    #search-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    #q {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.18);
+      font-size: 14px;
+      min-width: 140px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.18);
+      background: white;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      color: black;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: rgba(0,0,0,0.04);
+    }
+
+    #hint {
+      margin-top: 8px;
+      font-size: 12px;
+      color: rgba(0,0,0,0.65);
+      line-height: 1.3;
+    }
+  </style>
 </head>
 
 <body>
-    <!-- Minimal DOM structure required by toc_viewer.js/directory.js to function -->
-    <!-- These elements are hidden but exist so the scripts can build the directory and calculate which page to open -->
-    <div id="toc-pane">
-        <div id="toc-header"></div>
-        <div id="toc-content"></div>
-        <div id="toc-resize-handle"></div>
-        <button id="toc-pin-button"></button>
+  <!-- Visible overlay UI (will show even though body is hidden) -->
+  <div id="search-overlay" aria-label="Search transcripts">
+    <h1>Search transcripts</h1>
+
+    <div id="search-row">
+      <input id="q" type="text" placeholder="Search terms…" />
+
+      <!-- Simple site-scoped Google search -->
+      <button class="btn" id="google-search" type="button">Search</button>
+
+      <!-- Advanced Google Search (opens Google’s page) -->
+      <a class="btn" id="google-advanced" href="https://www.google.com/advanced_search" target="_blank" rel="noreferrer">
+        Advanced
+      </a>
     </div>
 
-    <!-- Load the viewer logic which handles the redirection on index.html -->
-    <script type="module" src="toc_viewer.js"></script>
-</body> 
+    <div id="hint">
+      Tip: this searches within your published site using <code>site:</code>. (Once you deploy, it’ll use your real domain.)
+    </div>
+  </div>
 
+  <!-- Minimal DOM structure required by toc_viewer.js/directory.js to function -->
+  <div id="toc-pane">
+    <div id="toc-header"></div>
+    <div id="toc-content"></div>
+    <div id="toc-resize-handle"></div>
+    <button id="toc-pin-button"></button>
+  </div>
+
+  <script>
+    // IMPORTANT: update this once deployed.
+    // For local testing: "localhost:8000" (or your port)
+    // For CloudFront: "dxxxxxxx.cloudfront.net"
+    // For your own domain: "transcripts.ctmirror.org"
+    const SITE_DOMAIN = "localhost:8000";
+
+    function buildQuery(raw) {
+      const terms = (raw || "").trim();
+      if (!terms) return `site:${SITE_DOMAIN}`;
+      return `site:${SITE_DOMAIN} ${terms}`;
+    }
+
+    document.getElementById("google-search").addEventListener("click", () => {
+      const terms = document.getElementById("q").value;
+      const q = buildQuery(terms);
+      const url = "https://www.google.com/search?q=" + encodeURIComponent(q);
+      window.open(url, "_blank", "noreferrer");
+    });
+
+    // Press Enter in the input to search
+    document.getElementById("q").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        document.getElementById("google-search").click();
+      }
+    });
+  </script>
+
+  <!-- Load the viewer logic which handles the redirection on index.html -->
+  <script type="module" src="toc_viewer.js"></script>
+</body>
 </html>
