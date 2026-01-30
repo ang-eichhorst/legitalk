@@ -9,8 +9,6 @@ temp_*
 # But do not ignore the localhost directory
 !/localhost/
 
-# And ignore subdirectories of localhost
-localhost/*/
 # Ignore all Markdown files
 *.md
 !README.md
