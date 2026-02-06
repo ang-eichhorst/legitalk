@@ -32,7 +32,7 @@ from dateutil import parser as dateparser
 ROOT = Path(__file__).resolve().parent
 COMMITTEES_FILE = ROOT / "committeeurl.json"
 STATE_FILE = ROOT / "ct_state.json"
-
+LOCK_FILE = ROOT / ".customgetter.lock"
 
 def load_json(path: Path, default):
     if path.exists():
@@ -142,45 +142,52 @@ def main() -> int:
     ap.add_argument("--dry-run", action="store_true", help="Print what would run, but don’t run factory.py")
     args = ap.parse_args()
 
-    committees = load_json(COMMITTEES_FILE, default=None)
-    if not committees:
-        print(f"Missing or empty {COMMITTEES_FILE}. Create it first.", file=sys.stderr)
-        return 2
+    if LOCK_FILE.exists():
+        print ("Another customgetter run is already active. Exiting.")
+        return 0
 
-    state = load_json(STATE_FILE, default={"processed_video_ids": []})
-    processed = set(state.get("processed_video_ids", []))
+    try:
+        LOCK_FILE.write_text(str(os.getpid()))
 
-    newly_processed: List[str] = []
+        committees = load_json(COMMITTEES_FILE, default=None)
+        if not committees:
+            print(f"Missing or empty {COMMITTEES_FILE}. Create it first.", file=sys.stderr)
+            return 2
 
-    for committee_name, cfg in committees.items():
-        channel_url = cfg.get("channel_url")
-        if not channel_url:
-            print(f"SKIP {committee_name}: no channel_url in committeeurl.json", file=sys.stderr)
-            continue
+        state = load_json(STATE_FILE, default={"processed_video_ids": []})
+        processed = set(state.get("processed_video_ids", []))
 
-        print(f"\n=== {committee_name} ===")
-        try:
-            vids = list_recent_videos(channel_url, limit=args.max_per_committee)
-        except Exception as e:
-            print(f"FAIL listing videos for {committee_name}: {e}", file=sys.stderr)
-            continue
+        newly_processed: List[str] = []
 
-        for v in vids:
-            vid = v["id"]
-            if vid in processed:
-                print(f"Already processed: {vid}  {v['title'][:80]}")
+        for committee_name, cfg in committees.items():
+            channel_url = cfg.get("channel_url")
+            if not channel_url:
+                print(f"SKIP {committee_name}: no channel_url in committeeurl.json", file=sys.stderr)
                 continue
 
+            print(f"\n=== {committee_name} ===")
+            try:
+                vids = list_recent_videos(channel_url, limit=args.max_per_committee)
+            except Exception as e:
+                print(f"FAIL listing videos for {committee_name}: {e}", file=sys.stderr)
+                continue
+
+            for v in vids:
+                vid = v["id"]
+                if vid in processed:
+                    print(f"Already processed: {vid}  {v['title'][:80]}")
+                    continue
+
             # If upload_date missing, fall back to today (keeps pipeline moving)
-            date_iso = dt.date.today().isoformat()
+                date_iso = dt.date.today().isoformat()
             
-            rc = run_factory(
-                url=v["url"],
-                committee=committee_name,
-                date_iso=date_iso,
-                jurisdiction=args.jurisdiction,
-                dry_run=args.dry_run,
-            )
+                rc = run_factory(
+                    url=v["url"],
+                    committee=committee_name,
+                    date_iso=date_iso,
+                    jurisdiction=args.jurisdiction,
+                    dry_run=args.dry_run,
+                )
             #date_iso = choose_best_date(
                 #title=v["title"],
                 #upload_date_iso=v.get("upload_date"),
@@ -194,20 +201,24 @@ def main() -> int:
                 #dry_run=args.dry_run,
             #)
             
-            if rc == 0:
-                newly_processed.append(vid)
-                processed.add(vid)
-            else:
-                print(f"Factory failed (rc={rc}) for video {vid}. Not marking as processed.", file=sys.stderr)
+                if rc == 0:
+                    newly_processed.append(vid)
+                    processed.add(vid)
+                else:
+                    print(f"Factory failed (rc={rc}) for video {vid}. Not marking as processed.", file=sys.stderr)
 
-    if newly_processed and not args.dry_run:
-        state["processed_video_ids"] = sorted(processed)
-        save_json(STATE_FILE, state)
-        print(f"\nSaved state to {STATE_FILE} (+{len(newly_processed)} new videos).")
+        if newly_processed and not args.dry_run:
+            state["processed_video_ids"] = sorted(processed)
+            save_json(STATE_FILE, state)
+            print(f"\nSaved state to {STATE_FILE} (+{len(newly_processed)} new videos).")
 
-    print("\nDone.")
-    return 0
+        print("\nDone.")
+        return 0
 
-
+    finally:
+        try:
+            LOCK_FILE.unlink()
+        except FileNotFoundError:
+            pass
 if __name__ == "__main__":
     raise SystemExit(main())

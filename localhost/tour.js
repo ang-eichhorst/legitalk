@@ -5,6 +5,7 @@ const PAUSE_TIME=1000
 
 
 function startTour(force = false) {
+  if (!force) return;
   // --- cleanup from any previous tour ---
   document.querySelectorAll('.tour-tip, .tour-backdrop').forEach(el => el.remove());
 

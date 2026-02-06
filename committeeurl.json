@@ -1,75 +1,47 @@
 {
-  "Aging Committee": {
-    "channel_url": "https://www.youtube.com/@cga-agingcommittee519/videos"
-  },
-  "Appropriations Committee": {
-    "channel_url": "https://www.youtube.com/@cga-appropriationscommitte4722/videos"
-  },
-  "Banking Committee": {
-    "channel_url": "https://www.youtube.com/@cga-bankingcommittee552/streams"
-  },
-  "Children Committee": {
-    "channel_url": "https://www.youtube.com/@cga-committeeonchildren3777/videos"
-  },
-  "Commerce Committee": {
-    "channel_url": "https://www.youtube.com/@cga-commercecommittee7427/videos"
-  },
   "Education Committee": {
     "channel_url": "https://www.youtube.com/@cga-educationcommittee1048/streams"
   },
-  "Energy and Technology Committee": {
-    "channel_url": "https://www.youtube.com/@cga-energyandtechnologycom7547/streams"
+
+  "Aging Committee": {
+    "channel_url": "https://www.youtube.com/@cga-agingcommittee519/streams"
   },
-  "Environment Committee": {
-    "channel_url": "https://www.youtube.com/@cga-environmentcommittee3998/videos"
+
+  "Appropriations Committee": {
+    "channel_url": "https://www.youtube.com/@cga-appropriationscommitte4722/streams"
   },
-  "Executive and Legislative Nominations Committee": {
-    "channel_url": "https://www.youtube.com/@cga-executivelegislativeno4755/streams"
+
+  "Children Committee": {
+    "channel_url": "https://www.youtube.com/@cga-committeeonchildren3777/streams"
   },
-  "Finance Committee": {
-    "channel_url": "https://www.youtube.com/@cga-financerevenueandbondi8777/videos"
-  },
-  "General Law Committee": {
-    "channel_url": "https://www.youtube.com/@cga-generallawcommittee286/videos"
-  },
-  "Government, Administration and Elections Committee": {
-    "channel_url": "https://www.youtube.com/@cga-governmentadministrati3205/videos"
-  },
+
   "Higher Education and Employment Committee": {
-    "channel_url": "https://www.youtube.com/@cga-highereducationemploym4471/videos"
+    "channel_url": "https://www.youtube.com/@cga-highereducationemploym4471/streams"
   },
+
   "Housing Committee": {
-    "channel_url": "https://www.youtube.com/@cga-housingcommittee4576/videos"
-  }, 
-  "Human Services Committee": {
-    "channel_url": "https://www.youtube.com/@cga-humanservicescommittee4480/videos"
+    "channel_url": "https://www.youtube.com/@cga-housingcommittee4576/streams"
   },
-  "Insurance and Real Estate Committee": {
-    "channel_url": "https://www.youtube.com/@cga-insuranceandrealestate8130/videos"
-  },
-  "Judiciary Committee": {
-    "channel_url": "https://www.youtube.com/@cga-judiciarycommittee6420/videos"
-  },
-  "Labor and Public Employees Committee": {
-    "channel_url": "https://www.youtube.com/@cga-laborandpublicemployee4830/videos"
-  },
-  "Planning and Development Committee": {
-    "channel_url": "https://www.youtube.com/@cga-planninganddevelopment3771/videos"
-  },
+
   "Public Health Committee": {
-    "channel_url": "https://www.youtube.com/@cga-publichealthcommittee6579/videos"
+    "channel_url": "https://www.youtube.com/@cga-publichealthcommittee6579/streams"
   },
-  "Public Safety and Security Committee": {
-    "channel_url": "https://www.youtube.com/@cga-publicsafetyandsecurit2449/videos"
+
+  "Finance Committee": {
+    "channel_url": "https://www.youtube.com/@cga-financerevenueandbondi8777/streams"
+
   },
-  "Regulation Review Committee": {
-    "channel_url": "https://www.youtube.com/@cga-legislativeregulationr4819/videos"
+
+  "Environment Committee": {
+    "channel_url": "https://www.youtube.com/@cga-environmentcommittee3998/streams"
+
   },
-  "Transportation Committee": {
-    "channel_url": "https://www.youtube.com/@cga-transportationcommitte8534/videos"
-  },
-  "Veterans Affairs Committee": {
-    "channel_url": "https://www.youtube.com/@cga-veteransaffairscommitt140/videos"
+
+  "Planning and Development Committee": {
+
+    "channel_url": "https://www.youtube.com/@cga-planninganddevelopment3771/streams"
+
   }
+
 
 }

@@ -1,13 +1,7 @@
 import sys
 from pathlib import Path
-def _project_root(marker: str = "lib") -> Path:
-    here = Path(__file__).resolve().parent
-    for cand in [here, *here.parents]:
-        root = cand.parent if cand.name == marker else cand
-        if (root / marker).is_dir():
-            return root
-    return here
-ROOT = _project_root("lib")
+
+ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 # --- end bootstrap ---
@@ -294,7 +288,8 @@ def generate_static_html(template_path, output_path, meeting_data):
         
         og_description = agenda_items[0].get('summary', 'A public meeting transcript.') if agenda_items else 'A public meeting transcript.'
         content = content.replace('{{OG_DESCRIPTION}}', og_description)
-        content=content.replace('{{APP_TITLE}}',jurisdiction+'SmartTranscripts')
+        #content=content.replace('{{APP_TITLE}}',jurisdiction+'SmartTranscripts')
+        content=content.replace('{{APP_TITLE}}', 'Legitalk')
         content = content.replace('{{MEETING_TITLE}}', meeting_data.get('title', 'SmartTranscript'))
         content = content.replace('{{AGENDA_HTML}}', agenda_html)
         content = content.replace('{{TRANSCRIPT_HTML}}', rebuilt_transcript_html)

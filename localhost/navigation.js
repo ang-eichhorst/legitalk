@@ -60,8 +60,8 @@ function initializeNavigationPane() {
   navHeader.innerHTML = `
         <h3>Navigation</h3>
         <div class="nav-tabs">
-            <button class="nav-tab-button active" data-mode="agenda">Agenda</button>
-            <button class="nav-tab-button" data-mode="text">Text</button>
+            <button class="nav-tab-button active" data-mode="agenda">Summary</button>
+            <button class="nav-tab-button" data-mode="text">Transcript</button>
             <button class="nav-tab-button" data-mode="speaker">Speaker</button>
         </div>
     `;
@@ -235,7 +235,7 @@ function initializeNavigationPane() {
     const contactButton = helpMenu.querySelector('#contact-button');
     if (contactButton) {
       contactButton.addEventListener('click', () => {
-        window.location.href = 'mailto:contact@goldendomevt.com';
+        window.location.href = 'mailto:aeichhorst@ctmirror.org';
       });
     }
   })();
