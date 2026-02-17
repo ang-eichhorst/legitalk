@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button id="play-clip-button" class="icon-button" disabled title="Play Clip">${playIconSVG}</button>
                 <button id="play-full-video-button" class="icon-button" title="Play Full Video">${restartIconSVG}</button>
             </div>
-            <div id="player-wrapper"><video id="videoElement"></video></div>
+            <div id="player-wrapper"><video id="videoElement" controls></video></div>
         `;
         buildShareButtons();
         setupDropdownMenus(); // Activate the dropdowns
@@ -677,14 +677,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const END_TOLERANCE = 1.00; // seconds - kluge for drift
         video.addEventListener('timeupdate', () => {
-            if (clipPlaying && video.currentTime >= (selectionEndTime + END_TOLERANCE)) {
-                video.pause();
-            }
         });
 
         video.addEventListener('play', () => {
             textContainer.classList.add('no-select');
-            clipPlaying = true; // Assume any play could be a clip
             playClipButton.innerHTML = pauseIconSVG;
         }
         );
@@ -694,6 +690,12 @@ document.addEventListener('DOMContentLoaded', () => {
             textContainer.classList.remove('no-select');
             playClipButton.innerHTML = playIconSVG;
         });
+
+        video.addEventListener('pause', () => {
+          console.log('[PAUSE] at', video.currentTime, 'selectionEndTime', selectionEndTime);
+          console.trace('[PAUSE STACK]');
+        });
+
     }
 
 

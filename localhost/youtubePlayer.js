@@ -43,7 +43,7 @@ VideoPlay.prototype.initPlayer = function() {
         videoId: this.videoId,
 		playerVars: {
             'autoplay': 0,
-            'controls': 0,
+            'controls': 1,
             'rel': 0,  // Prevents showing related videos at the end
             'modestbranding': 1,  // Reduces YouTube branding
             'enablejsapi': 1,
@@ -74,7 +74,8 @@ VideoPlay.prototype.addOverlay = function() {
     overlay.style.width = "100%";
     overlay.style.height = "100%";
     overlay.style.background = "rgba(0, 0, 0, 0.25)";
-    overlay.style.zIndex = "10";
+    overlay.style.zIndex = "10"
+    overlay.style.pointerEvents = "none";
 
     overlay.addEventListener("click", function(event) {
         event.stopPropagation(); // Prevent clicks from reaching the iframe
