@@ -1,3 +1,6 @@
+# Legitalk
+This repository is an adaptation of Tom Evslin's source code to work for Connecticut public meetings. 
+
 # SmartTranscripts
 
 This repository contains the open-source components of `sfgovernmentconnection.com` and provides a set of shareware building blocks for anyone who wants to create "SmartTranscripts" from YouTube or other video sources. SmartTranscripts have the searchability of text but easily play clips from the original video source of any selected snippet for verification or to get the depth of audio and video. SmartTranscripts link to the original video, which must be available online to the user.   
