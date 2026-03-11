@@ -7,6 +7,7 @@ import os
 import pickle
 import logging
 import argparse
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +23,21 @@ def call_deepgram(func, *args, **kwargs):
     logger.info('good return')
     return response
 
+def compress_for_upload(input_file):
+    base = os.path.splitext(input_file)[0]
+    compressed_path = f"{base}_upload_tmp.mp3"
+    cmd = [
+        'ffmpeg', '-y', '-i', input_file,
+        '-ac', '1',
+        '-ab', '32k',
+        '-f', 'mp3',
+        compressed_path
+    ]
+    result = subprocess.run(cmd, capture_output=True)
+    if result.returncode != 0:
+        raise RuntimeError(f"ffmpeg compression failed: {result.stderr.decode()}")
+    return compressed_path
+
 def transcribe_audio(input_file, output_file=None, topics=False):
     """
     This version runs with deepgram-sdk>=5.0.0.
@@ -34,11 +50,16 @@ def transcribe_audio(input_file, output_file=None, topics=False):
     # Initialize the client (v5 style) with custom timeout via httpx_client
     deepgram: DeepgramClient = DeepgramClient(
         api_key=os.environ["DEEPGRAM_API_KEY"],
-        httpx_client=httpx.Client(timeout=httpx.Timeout(600.0, connect=100.0))
+        httpx_client=httpx.Client(timeout=httpx.Timeout(connect=100.0, write=3600.0, read=3600.0, pool=5.0))
     )
 
-    with open(input_file, "rb") as file:
-        buffer_data = file.read()
+    compressed_file = compress_for_upload(input_file)
+    try:
+        with open(compressed_file, "rb") as file:
+            buffer_data = file.read()
+    finally:
+        if os.path.exists(compressed_file):
+            os.remove(compressed_file)
 
     # Define the API call using v5 syntax
     # Note: Options are now passed as kwargs directly
