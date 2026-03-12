@@ -59,6 +59,17 @@ VideoPlay.prototype.initPlayer = function() {
         }
     });
 	this.addOverlay(); // Add overlay after initializing the player
+    document.addEventListener('keydown', function(e) {
+        if (!self.player) return;
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'ArrowRight') {
+            self.player.seekTo(self.player.getCurrentTime() + 10, true);
+            e.preventDefault();
+        } else if (e.key === 'ArrowLeft') {
+            self.player.seekTo(self.player.getCurrentTime() - 10, true);
+            e.preventDefault();
+        }
+    });
 };
 
 
