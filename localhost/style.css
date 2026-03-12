@@ -381,6 +381,10 @@ body {
     padding-bottom: 10px;
 }
 
+#video-player-container {
+    min-height: 380px;
+}
+
 #time-range {
     padding: 10px 12px 5px 12px;
     color: #333;
