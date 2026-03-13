@@ -213,6 +213,21 @@ body {
     /* Outlook blue on hover */
 }
 
+#left-pane-resize-handle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    cursor: ew-resize;
+    background: transparent;
+    z-index: 101;
+}
+
+#left-pane-resize-handle:hover {
+    background: #0078d4;
+}
+
 /* Directory Tree Styles */
 .toc-list,
 .nested {
@@ -365,6 +380,7 @@ body {
     background: #fff;
     height: 100%;
     overflow: hidden;
+    position: relative;
 }
 
 #agenda {
@@ -776,6 +792,7 @@ body.youtube-player-active #player-wrapper {
     #share-buttons,
     #time-range,
     #toc-resize-handle,
+    #left-pane-resize-handle,
     .nav-header,
     .nav-tabs,
     .nav-tab-content {

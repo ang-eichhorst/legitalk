@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tocContent = document.getElementById('toc-content');
     const pinButton = document.getElementById('toc-pin-button');
     const resizeHandle = document.getElementById('toc-resize-handle');
+    const leftPane = document.getElementById('left-pane');
+    const leftPaneResizeHandle = document.getElementById('left-pane-resize-handle');
 
     if (!tocPane || !tocContent) return;
 
@@ -158,6 +160,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- Resizing Logic ---
     let isResizing = false;
+    let isLeftResizing = false;
 
     if (resizeHandle) {
         resizeHandle.addEventListener('mousedown', (e) => {
@@ -168,15 +171,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    if (leftPaneResizeHandle) {
+        leftPaneResizeHandle.addEventListener('mousedown', (e) => {
+            isLeftResizing = true;
+            document.body.style.cursor = 'ew-resize';
+            document.body.classList.add('no-select');
+            e.stopPropagation();
+        });
+    }
+
     document.addEventListener('mousemove', (e) => {
-        if (!isResizing) return;
-
-        // Calculate new width
-        let newWidth = e.clientX;
-        if (newWidth < 200) newWidth = 200;
-        if (newWidth > 600) newWidth = 600;
-
-        tocPane.style.width = `${newWidth}px`;
+        if (isResizing) {
+            // Calculate new width
+            let newWidth = e.clientX;
+            if (newWidth < 200) newWidth = 200;
+            if (newWidth > 600) newWidth = 600;
+            tocPane.style.width = `${newWidth}px`;
+        }
+        if (isLeftResizing && leftPane) {
+            const container = document.getElementById('content-container');
+            const containerLeft = container ? container.getBoundingClientRect().left : 0;
+            const tocWidth = tocPane ? tocPane.getBoundingClientRect().width : 0;
+            let newWidth = e.clientX - containerLeft - tocWidth;
+            if (newWidth < 200) newWidth = 200;
+            if (newWidth > window.innerWidth * 0.7) newWidth = window.innerWidth * 0.7;
+            leftPane.style.width = `${newWidth}px`;
+        }
     });
 
     document.addEventListener('mouseup', () => {
@@ -190,13 +210,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Ignore
             }
         }
+        if (isLeftResizing) {
+            isLeftResizing = false;
+            document.body.style.cursor = '';
+            document.body.classList.remove('no-select');
+            try {
+                localStorage.setItem('leftPaneWidth', leftPane.style.width);
+            } catch (e) {
+                // Ignore
+            }
+        }
     });
 
-    // Restore width
+    // Restore widths
     try {
         const savedWidth = localStorage.getItem('tocWidth');
         if (savedWidth) {
             tocPane.style.width = savedWidth;
+        }
+    } catch (e) {
+        // Ignore
+    }
+    try {
+        const savedLeftPaneWidth = localStorage.getItem('leftPaneWidth');
+        if (savedLeftPaneWidth && leftPane) {
+            leftPane.style.width = savedLeftPaneWidth;
         }
     } catch (e) {
         // Ignore
