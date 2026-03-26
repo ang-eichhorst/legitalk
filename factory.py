@@ -63,7 +63,9 @@ def process_single_meeting(
     audio_path = os.path.join(wip_meeting_path, "audio.mp3")
     if not os.path.exists(audio_path):
         print(f"  - Downloading audio for {meeting_date}...")
-        download_audio(actual_download_url, audio_path)
+        result = download_audio(actual_download_url, audio_path)
+        if not result and not os.path.exists(audio_path):
+            raise RuntimeError(f"Download failed for {meeting_date}")
     else:
         print(f"  - Audio already exists for {meeting_date}.")
 

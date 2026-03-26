@@ -398,7 +398,7 @@ def download_audio(stream_url, output_filename, expected_duration=None, toleranc
 
             # This avoids downloading the huge video file first.
 
-            if stream_url.lower().endswith('.mp4'):
+            if stream_url.lower().endswith('.mp4') or 'm3u8' in stream_url.lower():
 
                 print(f"Detected MP4 URL. Using direct ffmpeg streaming for: {stream_url}")
 
@@ -626,9 +626,7 @@ def download_audio(stream_url, output_filename, expected_duration=None, toleranc
 
                     'progress': True,
 
-                    'remote_components': ['ejs:github'],
-
-                    # 'extractor_args': {'youtube': {'player_client': ['tv', 'web', 'web_safari']}},
+                    'remote_components': ['ejs:github'], 
 
                     'fragment_retries': 0,
 
