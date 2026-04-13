@@ -291,6 +291,13 @@ def generate_static_html(template_path, output_path, meeting_data):
         #content=content.replace('{{APP_TITLE}}',jurisdiction+'SmartTranscripts')
         content=content.replace('{{APP_TITLE}}', 'Legitalk')
         content = content.replace('{{MEETING_TITLE}}', meeting_data.get('title', 'SmartTranscript'))
+        title = meeting_data.get('title', '')
+        committee_name = title.split(' - ')[0]
+        date_part = title.split(' - ', 1)[1] if ' - ' in title else ''
+        speaker_names = list(dict.fromkeys(speaker_map.values()))  # unique, insertion-ordered
+        content = content.replace('{{COMMITTEE_NAME}}', committee_name)
+        content = content.replace('{{MEETING_DATE}}', date_part)
+        content = content.replace('{{SPEAKER_LIST}}', ', '.join(speaker_names))
         content = content.replace('{{AGENDA_HTML}}', agenda_html)
         content = content.replace('{{TRANSCRIPT_HTML}}', rebuilt_transcript_html)
         content = content.replace('{{MEETING_DATA_JSON}}', json.dumps(meeting_data_for_island, indent=2))

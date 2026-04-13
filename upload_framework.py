@@ -278,6 +278,19 @@ def main():
 
     print(f"Found {len(files_to_sync)} files to sync from manifest: {manifest_path}")
     print(f"Using source directory: {source_dir}")
+
+    # Add all pagefind/ files (auto-generated binary index — too many to list in manifest)
+    pagefind_dir = os.path.join(source_dir, "pagefind")
+    if os.path.isdir(pagefind_dir):
+        for root, _, filenames in os.walk(pagefind_dir):
+            for fname in filenames:
+                full_path = os.path.join(root, fname)
+                rel_key = os.path.relpath(full_path, source_dir).replace(os.sep, "/")
+                if rel_key not in files_to_sync:
+                    files_to_sync.append(rel_key)
+        print(f"Added pagefind/ directory ({len([f for f in files_to_sync if f.startswith('pagefind/')])} files).")
+    else:
+        print("Note: pagefind/ directory not found — run build_search_index.sh before deploying.")
     
     # Determine target type
     target = args.target

@@ -17,6 +17,7 @@
             <div class="header-title-group">
                 <h1><a href="/index.html">{{APP_TITLE}}</a>:</h1>
                 <h2 id="meeting-title">{{MEETING_TITLE}}</h2>
+                <a href="/search.html" style="margin-left:1rem;font-size:0.9rem;white-space:nowrap;">Search</a>
             </div>
             <img id="header-banner" src="/banner.png" alt="Banner">
         </header>
@@ -55,7 +56,7 @@
                     </nav>
                 </div>
                 <div id="transcript-container">
-                    <div id="text-container">
+                    <div id="text-container" data-pagefind-body>
                         {{TRANSCRIPT_HTML}}
                     </div>
                 </div>
@@ -84,6 +85,10 @@
     <script id="meeting-data" type="application/json">
         {{MEETING_DATA_JSON}}
     </script>
+    <div data-pagefind-meta="committee" style="display:none">{{COMMITTEE_NAME}}</div>
+    <div data-pagefind-meta="date" style="display:none">{{MEETING_DATE}}</div>
+    <div data-pagefind-meta="speakers" style="display:none">{{SPEAKER_LIST}}</div>
+
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="/viewer_logic.js"></script>
     <script type="module" src="/toc_viewer.js"></script>

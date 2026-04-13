@@ -1,4 +1,5 @@
 index.html
+search.html
 loader.js
 style.css
 dropdown_styles.css
