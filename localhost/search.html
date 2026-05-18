@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search — Connecticut Committee Transcripts</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css">
+    <style>
+        /* Override style.css body rules that lock the viewport for the transcript viewer */
+        body {
+            height: auto !important;
+            overflow: auto !important;
+        }
+
+        #search-page-main {
+            max-width: 860px;
+            margin: 2rem auto;
+            padding: 0 1.5rem 3rem;
+        }
+
+        .pagefind-ui__search-input {
+            font-family: inherit;
+        }
+
+        .pagefind-ui__result-title a {
+            color: #0057b8;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="header-placeholder">
+        <header class="page-header">
+            <div class="header-title-group">
+                <h1><a href="/index.html">Legitalk</a>:</h1>
+                <h2>Search Transcripts</h2>
+            </div>
+            <img id="header-banner" src="/banner.png" alt="Banner">
+        </header>
+    </div>
+
+    <div id="search-page-main">
+        <div id="search"></div>
+    </div>
+
+    <script src="/pagefind/pagefind-ui.js"></script>
+    <script>
+        new PagefindUI({
+            element: "#search",
+            showImages: false,
+            excerptLength: 30,
+            resetStyles: false,
+        });
+    </script>
+</body>
+
+</html>

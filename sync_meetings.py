@@ -67,7 +67,7 @@ def invalidate_cloudfront_cache(distribution_id, items):
     except ClientError as e:
         print(f"Error creating invalidation: {e}")
 
-def sync_meetings_to_s3(source_dir: str, bucketname: str = None):
+def sync_meetings_to_s3(source_dir: str, bucketname: str = None, prefix: str = 'meetings'):
     """
     Synchronizes the local meetings directory with the S3 bucket and generates a JSON index
     based on the final state of the S3 bucket.
@@ -93,7 +93,7 @@ def sync_meetings_to_s3(source_dir: str, bucketname: str = None):
         return
 
     s3 = boto3.client("s3")
-    s3_objects_before_sync = get_s3_objects(BUCKET_NAME, prefix='meetings/')
+    s3_objects_before_sync = get_s3_objects(BUCKET_NAME, prefix=f'{prefix}/')
     uploaded_files = []
 
     # --- 1. Sync individual files from local to S3 ---
@@ -101,7 +101,7 @@ def sync_meetings_to_s3(source_dir: str, bucketname: str = None):
         for filename in files:
             local_path = os.path.join(root, filename)
             relative_path = os.path.relpath(local_path, local_meetings_dir)
-            s3_key = os.path.join('meetings', relative_path).replace('\\', '/')
+            s3_key = os.path.join(prefix, relative_path).replace('\\', '/')
             local_last_modified = datetime.fromtimestamp(os.path.getmtime(local_path)).astimezone(timezone.utc)
 
             if s3_key in s3_objects_before_sync and local_last_modified <= s3_objects_before_sync[s3_key]:
@@ -152,8 +152,13 @@ def main():
         default=None,
         help='The name of the s3 bucket to sync to. If not provided, the value is read from the .env file.'
     )
+    parser.add_argument(
+        '--prefix',
+        default='meetings',
+        help='S3 key prefix to sync under. Defaults to "meetings". Use "other" for other/ content.'
+    )
     args = parser.parse_args()
-    sync_meetings_to_s3(source_dir=args.source_dir, bucketname=args.bucketname)
+    sync_meetings_to_s3(source_dir=args.source_dir, bucketname=args.bucketname, prefix=args.prefix)
 
 if __name__ == '__main__':
     main()

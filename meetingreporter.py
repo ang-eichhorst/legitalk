@@ -298,6 +298,7 @@ def generate_static_html(template_path, output_path, meeting_data):
         content = content.replace('{{COMMITTEE_NAME}}', committee_name)
         content = content.replace('{{MEETING_DATE}}', date_part)
         content = content.replace('{{SPEAKER_LIST}}', ', '.join(speaker_names))
+        content = content.replace('{{SEARCH_URL}}', meeting_data.get('search_url', '/search.html'))
         content = content.replace('{{AGENDA_HTML}}', agenda_html)
         content = content.replace('{{TRANSCRIPT_HTML}}', rebuilt_transcript_html)
         content = content.replace('{{MEETING_DATA_JSON}}', json.dumps(meeting_data_for_island, indent=2))
@@ -331,7 +332,8 @@ def video_to_static_transcript(
     jurisdiction='',
     hints_file_path=None,
     hints_text=None,
-    structured_out_path=None,   
+    structured_out_path=None,
+    search_url='/search.html',
 ):
 
     """
@@ -419,7 +421,8 @@ def video_to_static_transcript(
         "speaker_map": speaker_map,
         "speaker_overrides": speaker_overrides,
         "paragraphs": deepgram_results.get('channels', [{}])[0].get('alternatives', [{}])[0].get('paragraphs', {}).get('paragraphs', []),
-        "jurisdiction":jurisdiction
+        "jurisdiction": jurisdiction,
+        "search_url": search_url,
     }
 
     # 5. Generate the Static HTML

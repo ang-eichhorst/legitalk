@@ -26,6 +26,7 @@ def process_single_meeting(
     structured_only: bool = False,
     jurisdiction: str = '',
     download_url: str = None,
+    search_url: str = '/search.html',
 ):
     """Run the full pipeline for a single meeting and return output paths."""
     committee_folder = committee_name.replace(" ", "_")
@@ -103,6 +104,7 @@ def process_single_meeting(
         video_url=video_url,
         structured_out_path=structured_path,
         jurisdiction=jurisdiction,
+        search_url=search_url,
     )
 
     if structured_only:
@@ -137,6 +139,7 @@ def main():
     parser.add_argument("--members", help="Optional JSON file with committee members")
     parser.add_argument("--structured-only", action="store_true", help="Skip HTML generation and only output structured.json")
     parser.add_argument("--jurisdiction", help="Jurisdiction name (e.g., 'San Francisco Government')", default="")
+    parser.add_argument("--search-url", help="URL for the Search link in the transcript header", default="/search.html")
     parser.add_argument("--getter-script", default="customgetter.py", help="Script to use for getting recent meetings in batch mode.")
     args = parser.parse_args()
 
@@ -156,6 +159,7 @@ def main():
             meetings_dir=args.meetings,
             structured_only=args.structured_only,
             jurisdiction=args.jurisdiction,
+            search_url=args.search_url,
         )
         return
 
