@@ -175,6 +175,8 @@ Then
 Run the command. It looks something like this for standard legitalk: 
 
 For a YouTube video :
+
+
     python factory.py --url "https://www.youtube.com/watch?v=MzgJEc7_0A8" --committee "Human Services Committee" --date "2026-04-07-Neglect-Forum" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://www.youtube.com/watch?v=-rAWwIPaxaM" --committee "Human Services Committee" --date "2026-04-07-Committee" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://www.youtube.com/watch?v=J121Wh1IJi4" --committee "Public Health Committee" --date "2026-04-07" --jurisdiction "Connecticut" && python sync_meetings.py
 
 Add a title beyond the date i.e. "2026-04-07-Neglect-Forum" if there are multiple meetings for the same committee in a day. Otherwise just the date "2026-04-07" is fine. 
@@ -182,6 +184,8 @@ Add a title beyond the date i.e. "2026-04-07-Neglect-Forum" if there are multipl
 && joins together multiple commands. Python sync_meetings.py can be run at the end of each video to commit it to AWS. 
 
 For a CT-N video: 
+
+
     python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:SENATE+2%2D4+G%2Emp4/playlist.m3u8" --committee "Senate" --date "2026-02-04" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAR23/mp4:SENATE+3%2D26+G%2Emp4/playlist.m3u8" --committee "Senate" --date "2026-03-26" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:HOUSE+OPEN+DAY+2%2D4+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-04" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:HOUSE+2%2D5+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-05" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB23/mp4:HOUSE+2%2D26+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-26" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAR23/mp4:HOUSE+3%2D25+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-03-25" --jurisdiction "Connecticut" && python sync_meetings.py
 
 Running CT-N and Youtube videos together is acceptable. To find the m3u8 for the CT-N video inspect the code source in Google chrome. 
