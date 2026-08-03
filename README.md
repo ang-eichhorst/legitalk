@@ -167,6 +167,7 @@ A virtual connection was set up with my Mac using Tailscale.
 
 Then
 
+
     cd legitalk
 
     source venv/bin/activate 
@@ -178,18 +179,22 @@ python factory.py --url "https://www.youtube.com/watch?v=MzgJEc7_0A8" --committe
 
 Add a title beyond the date i.e. "2026-04-07-Neglect-Forum" if there are multiple meetings for the same committee in a day. Otherwise just the date "2026-04-07" is fine. 
 
-&& joins commands for running different videos. Python sync_meetings.py can be run at the end of each video to commit it to AWS. 
+&& joins together multiple commands. Python sync_meetings.py can be run at the end of each video to commit it to AWS. 
 
 For a CT-N video: 
 python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:SENATE+2%2D4+G%2Emp4/playlist.m3u8" --committee "Senate" --date "2026-02-04" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAR23/mp4:SENATE+3%2D26+G%2Emp4/playlist.m3u8" --committee "Senate" --date "2026-03-26" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:HOUSE+OPEN+DAY+2%2D4+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-04" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:HOUSE+2%2D5+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-05" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB23/mp4:HOUSE+2%2D26+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-26" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAR23/mp4:HOUSE+3%2D25+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-03-25" --jurisdiction "Connecticut" && python sync_meetings.py
 
-Running CT-N and Youtube videos together are acceptable. To find the m3u8 for the CT-N video inspect the code source in Google chrome. 
+Running CT-N and Youtube videos together is acceptable. To find the m3u8 for the CT-N video inspect the code source in Google chrome. 
 
-For out of session season I set up a localhost/other folder that does not create a committee tag on the website and runs a separate search. To send the link around you will need to send the specific page link i.e. 
+Troubleshooting! You may need to update yt-dlp in the virtual environment
+
+For out of session season, I set up a localhost/other folder that does not create a committee tag on the website and runs a separate search matrix. To access you will need specific page link i.e. https://theconnecticutmirror.com/other/Early_Childhood_Education_Endowment/2026-05-18/transcript.html 
+
+python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAY18/mp4:EARLY+CHILD+5%2D18+G%2Emp4/playlist.m3u8" --committee "Early Childhood Education Endowment" --date "2026-05-18" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py
+
+When you are choosing names for meetings, don't put '&' within like I did here, i.e. "Planning & Zoning" because it will register as '%26'. Just avoid
 
 python factory.py --url "https://www.youtube.com/watch?v=PskuvDUjJTs" --committee "Norwalk Planning & Zoning Commission 07-15-2026" --date "2026-07-15" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py && python factory.py --url "https://www.youtube.com/watch?v=bwmZG5D7XHk" --committee "Norwalk Planning & Zoning Commission 07-29-2026" --date "2026-07-29" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py
-
-When you are choosing names for meetings, don't put '&' within, i.e. "Planning & Zoning" because it will register as '%26'. Just avoid
 
 
 ## 2026 Legitalk AWS manual
