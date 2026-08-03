@@ -166,6 +166,7 @@ A virtual connection was set up with my Mac using Tailscale.
     3. Open terminal in Mac and type ssh wsl to connect to the Dell through the virtual connection 
 
 Then
+
     cd legitalk
 
     source venv/bin/activate 
