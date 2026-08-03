@@ -152,3 +152,37 @@ There is no assurance that bugs will be fixed or that the code will be updated.
 ## Contributing
 
 Contributions are welcome! If you would like to add new capabilities, fix bugs, or add support for other jurisdictions, please feel free to file a pull request. Providing custom getter scripts and parsers for other municipalities is a particularly valuable way to contribute.
+
+## 2026 Legitalk hosting manual
+
+In 2026 Legitalk was hosted on an Ubuntu shell running inside a Dell laptop that remained plugged into power and open. 
+    1. Open Ubuntu terminal on Dell.
+
+A virtual connection was set up with my Mac using Tailscale.
+    2. Check Tailscale connection is open on both computers, log-in using appropriate admin passwords. You should see codeamin@CT-M-Stephen
+
+Open terminal and type ssh wsl
+
+Make sure tailscale is connected on both laptops 
+
+Type in the password when requested
+
+The run the command. It looks something like this for standard legitalk 
+
+For youtube:
+python factory.py --url "https://www.youtube.com/watch?v=MzgJEc7_0A8" --committee "Human Services Committee" --date "2026-04-07-Neglect-Forum" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://www.youtube.com/watch?v=-rAWwIPaxaM" --committee "Human Services Committee" --date "2026-04-07-Committee" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://www.youtube.com/watch?v=J121Wh1IJi4" --committee "Public Health Committee" --date "2026-04-07" --jurisdiction "Connecticut" && python sync_meetings.py
+
+For CT-N
+
+python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:SENATE+2%2D4+G%2Emp4/playlist.m3u8" --committee "Senate" --date "2026-02-04" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAR23/mp4:SENATE+3%2D26+G%2Emp4/playlist.m3u8" --committee "Senate" --date "2026-03-26" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:HOUSE+OPEN+DAY+2%2D4+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-04" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB02/mp4:HOUSE+2%2D5+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-05" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026FEB23/mp4:HOUSE+2%2D26+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-02-26" --jurisdiction "Connecticut" && python sync_meetings.py && python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAR23/mp4:HOUSE+3%2D25+G%2Emp4/playlist.m3u8" --committee "House" --date "2026-03-25" --jurisdiction "Connecticut" && python sync_meetings.py
+
+And for out of legitalk season
+python factory.py --url "https://www.youtube.com/watch?v=PskuvDUjJTs" --committee "Norwalk Planning & Zoning Commission 07-15-2026" --date "2026-07-15" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py && python factory.py --url "https://www.youtube.com/watch?v=bwmZG5D7XHk" --committee "Norwalk Planning & Zoning Commission 07-29-2026" --date "2026-07-29" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py
+
+The other meetings search is separate. You’r going to need the exact URL, won’t show up in the website
+
+Remember not to put & symbol in anything
+
+Also remember to put && in between commands
+
+
