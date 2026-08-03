@@ -198,8 +198,13 @@ When you are choosing names for meetings, don't put '&' within like I did here, 
 
     python factory.py --url "https://www.youtube.com/watch?v=PskuvDUjJTs" --committee "Norwalk Planning & Zoning Commission 07-15-2026" --date "2026-07-15" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py && python factory.py --url "https://www.youtube.com/watch?v=bwmZG5D7XHk" --committee "Norwalk Planning & Zoning Commission 07-29-2026" --date "2026-07-29" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py
 
+I've been updated code changes but the goal is not necessarily to bog down the repo with every transcript + supporting material. That lives in AWS...
 
 ## 2026 Legitalk AWS set-up
+### Initial set-up
+Set up an S3 container. You also need CloudFront and Route 53.  
 
-Set up an S3 container 
+Multi-factor authentication through the Google Authenticator app. 
+
+If you want stuff to be deleted from the website you need to delete it from S3. 
 
