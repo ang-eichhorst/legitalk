@@ -190,9 +190,9 @@ Running CT-N and Youtube videos together is acceptable. To find the m3u8 for the
 
 Troubleshooting! You may need to update yt-dlp in the virtual environment
 
-For out of session season, I set up a localhost/other folder that does not create a committee tag on the website and runs a separate search matrix. To access you will need specific page link i.e. https://theconnecticutmirror.com/other/Early_Childhood_Education_Endowment/2026-05-18/transcript.html 
+For out of session season, I set up a localhost/other folder that does not create a committee tag on the website and runs a separate search matrix. To access you will need specific page link i.e. https://theconnecticutmirror.com/other/Early_Childhood_Education_Endowment/2026-05-18/transcript.html. You need to sync the localhost/other channel, not the typical path of localhost/meetings. 
 
-    python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAY18/mp4:EARLY+CHILD+5%2D18+G%2Emp4/playlist.m3u8" --committee "Early Childhood Education Endowment" --date "2026-05-18" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py
+    python factory.py --url "https://video.ct-n.com/vod/_definst_/OD2026MAY18/mp4:EARLY+CHILD+5%2D18+G%2Emp4/playlist.m3u8" --committee "Early Childhood Education Endowment" --date "2026-05-18" --jurisdiction "Connecticut" --meetings localhost/other --search-url "/other/search.html" && python sync_meetings.py --source-dir localhost/other --prefix other
 
 When you are choosing names for meetings, don't put '&' within like I did here, i.e. "Planning & Zoning" because it will register as '%26'. Just avoid
 
